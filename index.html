@@ -954,8 +954,7 @@ const firebaseConfig = {
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
+        import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'bc-yl-wallet-v1';
         let app, auth, db;
 
@@ -995,6 +994,52 @@ const firebaseConfig = {
 
         createApp({
             setup() {
+
+                const registerTeacher = async () => {
+    try {
+        pinError.value = '';
+        
+        // Validation
+        if (!teacherRegisterForm.value.displayName || !teacherRegisterForm.value.username || !teacherRegisterForm.value.password) {
+            pinError.value = 'Please fill in all fields';
+            return;
+        }
+        
+        // Check if username already exists (you'll need to query Firestore)
+        const teachersRef = collection(db, 'teachers');
+        const q = query(teachersRef, where('username', '==', teacherRegisterForm.value.username));
+        const snapshot = await getDocs(q);
+        
+        if (snapshot.size > 0) {
+            pinError.value = 'Username already taken. Please choose another.';
+            return;
+        }
+        
+        // Create new teacher document in Firestore
+        const newTeacher = {
+            displayName: teacherRegisterForm.value.displayName,
+            username: teacherRegisterForm.value.username,
+            password: teacherRegisterForm.value.password, // Consider hashing this!
+            createdAt: new Date(),
+            students: []
+        };
+        
+        const docRef = await addDoc(teachersRef, newTeacher);
+        
+        // Log them in
+        currentTeacher.value = { id: docRef.id, ...newTeacher };
+        localStorage.setItem('currentTeacherId', docRef.id);
+        
+        // Reset form and close modal
+        teacherRegisterForm.value = { displayName: '', username: '', password: '' };
+        showPinModal.value = false;
+        
+        showToast('Teacher profile created successfully!', 'fa-circle-check');
+    } catch (err) {
+        console.error('Registration error:', err);
+        pinError.value = 'Error creating teacher profile: ' + err.message;
+    }
+};
                 // Sound Synthesizer
                 const playSound = (type) => {
                     try {
