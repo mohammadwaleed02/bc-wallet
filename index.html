@@ -1660,16 +1660,15 @@
                     });
                 };
 
-                const initFirebase = async () => {
-                    try {
-                        if (auth) {
-                            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                                await signInWithCustomToken(auth, __initial_auth_token);
-                            } else {
-                                await signInAnonymously(auth);
-                            }
-                        }
-
+               const firebaseConfig = {
+  apiKey: "AIzaSyBIgc6NfJ1iJglBhatWPcHZdX4o55g3LKs",
+  authDomain: "bc-wallet-2f49e.firebaseapp.com",
+  projectId: "bc-wallet-2f49e",
+  storageBucket: "bc-wallet-2f49e.firebasestorage.app",
+  messagingSenderId: "947554527361",
+  appId: "1:947554527361:web:18ac7fbab7af98b3ff4580",
+  measurementId: "G-EKNNLJV203"
+};
                         if (db) {
                             onSnapshot(collection(db, 'teachers'), (snapshot) => {
                                 const list = [];
