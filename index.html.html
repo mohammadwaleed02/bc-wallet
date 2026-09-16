@@ -1,0 +1,1794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>British Council - Young Learners Online Wallet</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti for Reward Celebrations -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- QR Code Generator JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bc: {
+                            navy: '#00205b',
+                            blue: '#0056b3',
+                            cyan: '#00a3e0',
+                            light: '#f0f4f9',
+                            gold: '#ffb800',
+                            accent: '#ff3366',
+                            green: '#10b981'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        display: ['Fredoka', 'cursive']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #00205b 50%, #0f172a 100%);
+            min-height: 100vh;
+        }
+        .font-display {
+            font-family: 'Fredoka', cursive;
+        }
+        .bank-card-gradient {
+            background: linear-gradient(135deg, #00205b 0%, #0056b3 40%, #00a3e0 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .bank-card-gradient::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 60%);
+            transform: rotate(30deg);
+            pointer-events: none;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .glass-panel-dark {
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(0, 86, 179, 0.3);
+            border-radius: 10px;
+        }
+        .chip-pattern {
+            background: linear-gradient(135deg, #ffd700 0%, #b8860b 100%);
+            border: 1px solid #daa520;
+        }
+    </style>
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyBIgc6NfJ1iJglBhatWPcHZdX4o55g3LKs",
+  authDomain: "bc-wallet-2f49e.firebaseapp.com",
+  projectId: "bc-wallet-2f49e",
+  storageBucket: "bc-wallet-2f49e.firebasestorage.app",
+  messagingSenderId: "947554527361",
+  appId: "1:947554527361:web:18ac7fbab7af98b3ff4580",
+  measurementId: "G-EKNNLJV203"
+};
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+// Expose db globally so your functions can access Firestore
+  window.db = getFirestore(app);
+</script>
+</head>
+<body class="text-slate-800 antialiased selection:bg-bc-cyan selection:text-white pb-12">
+    <div id="app" class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4">
+        <!-- HEADER & NAVBAR WITH OFFICIAL BRITISH COUNCIL LOGO -->
+        <header class="glass-panel-dark rounded-2xl p-4 mb-6 shadow-xl text-white flex flex-col md:flex-row justify-between items-center gap-4 border border-white/10">
+            <div class="flex items-center gap-4">
+                <!-- British Council SVG Emblem (4 Cyan Dots Grid) -->
+                <div class="flex items-center gap-3">
+                    <svg class="h-9 w-auto shrink-0" viewBox="0 0 220 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="14" cy="18" r="11" fill="#00A3E0"/>
+                        <circle cx="42" cy="18" r="11" fill="#00A3E0"/>
+                        <circle cx="14" cy="42" r="11" fill="#00A3E0"/>
+                        <circle cx="42" cy="42" r="11" fill="#00A3E0"/>
+                        <text x="68" y="27" fill="#FFFFFF" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="20" letter-spacing="1.5">BRITISH</text>
+                        <text x="68" y="49" fill="#FFFFFF" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="20" letter-spacing="1.5">COUNCIL</text>
+                    </svg>
+                    <div class="h-8 w-[1px] bg-white/20 hidden sm:block"></div>
+                    <div>
+                        <h1 class="text-lg sm:text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                            Young Learners Online Wallet
+                            <span class="text-[10px] bg-bc-cyan/20 text-bc-cyan font-sans font-bold px-2 py-0.5 rounded-full uppercase tracking-wider border border-bc-cyan/30">BC Pounds</span>
+                        </h1>
+                    </div>
+                </div>
+            </div>
+            <!-- Global Actions & Role Toggle -->
+            <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+                <button @click="openShareModal" class="px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-white/10">
+                    <i class="fa-solid fa-qrcode text-bc-cyan"></i>
+                    <span>Share App / Link</span>
+                </button>
+                <button @click="handleModeToggle" 
+                        class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-md"
+                        :class="currentRole === 'teacher' ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white ring-2 ring-emerald-400/30' : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'">
+                    <i :class="currentRole === 'teacher' ? 'fa-solid fa-chalkboard-user' : 'fa-solid fa-user-lock'"></i>
+                    <span>{{ currentRole === 'teacher' ? (currentTeacher ? currentTeacher.displayName : 'Teacher Dashboard') : 'Teacher Login' }}</span>
+                </button>
+                 
+                <!-- EDIT PROFILE BUTTON -->
+<button @click="openTeacherProfileModal" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
+    <i class="fa-solid fa-user-pen"></i>
+    <span>Edit Profile</span>
+</button>
+
+<!-- YOUR EXISTING LOGOUT BUTTON -->
+<button @click="logoutTeacher" class="...">
+    <i class="fa-solid fa-right-from-bracket"></i>
+    <span>Logout</span>
+</button>
+
+                <button v-if="currentTeacher" @click="logoutTeacher" class="px-3 py-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 rounded-xl text-xs font-bold transition flex items-center gap-1 border border-rose-500/30" title="Logout Teacher Account">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span class="hidden sm:inline">Logout</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- STUDENT VIEW -->
+        <main v-if="currentRole === 'student'" class="space-y-6">
+            <!-- STATE 1: UNREGISTERED / STUDENT LOGIN OR REGISTER -->
+            <div v-if="!currentStudentId" class="glass-panel rounded-3xl p-6 sm:p-10 text-center max-w-lg mx-auto shadow-2xl">
+                <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-bc-navy to-bc-blue text-white mx-auto flex items-center justify-center text-3xl shadow-lg mb-4">
+                    <i class="fa-solid fa-id-card"></i>
+                </div>
+                <h2 class="text-2xl font-bold font-display text-slate-800 mb-1">Welcome Young Learner!</h2>
+                <p class="text-xs sm:text-sm text-slate-600 mb-6">Log in with your student credentials to access your British Council digital wallet and rewards.</p>
+                
+                <!-- Toggle between Student Login OR New Registration -->
+                <div class="flex bg-slate-100 p-1.5 rounded-2xl mb-6 text-xs font-bold shadow-inner">
+                    <button @click="studentAuthMode = 'login'; studentLoginError = ''; studentRegisterError = ''" 
+                            class="flex-1 py-2.5 rounded-xl transition flex items-center justify-center gap-1.5"
+                            :class="studentAuthMode === 'login' ? 'bg-white text-bc-navy shadow-sm' : 'text-slate-500 hover:text-slate-800'">
+                        <i class="fa-solid fa-right-to-bracket text-bc-cyan"></i> Student Login
+                    </button>
+                    <button @click="studentAuthMode = 'register'; studentLoginError = ''; studentRegisterError = ''" 
+                            class="flex-1 py-2.5 rounded-xl transition flex items-center justify-center gap-1.5"
+                            :class="studentAuthMode === 'register' ? 'bg-white text-bc-navy shadow-sm' : 'text-slate-500 hover:text-slate-800'">
+                        <i class="fa-solid fa-user-plus text-bc-cyan"></i> New Registration
+                    </button>
+                </div>
+
+                <!-- OPTION A: STUDENT USERNAME & PASSWORD LOGIN -->
+                <form v-if="studentAuthMode === 'login'" @submit.prevent="loginStudentWithCredentials" class="space-y-4 text-left">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Username</label>
+                        <input v-model="studentLoginForm.username" type="text" required placeholder="e.g. alexsmith" class="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:ring-2 focus:ring-bc-blue focus:outline-none text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Password</label>
+                        <input v-model="studentLoginForm.password" type="password" required placeholder="••••••••" class="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:ring-2 focus:ring-bc-blue focus:outline-none text-sm">
+                    </div>
+                    <p v-if="studentLoginError" class="text-xs text-rose-600 font-bold text-center bg-rose-50 p-2.5 rounded-xl border border-rose-200">
+                        {{ studentLoginError }}
+                    </p>
+                    <button type="submit" class="w-full bg-bc-blue hover:bg-bc-navy text-white font-bold py-3.5 px-4 rounded-xl transition flex items-center justify-center gap-2 text-sm shadow-lg">
+                        <i class="fa-solid fa-right-to-bracket"></i> Open My Wallet
+                    </button>
+                </form>
+
+                <!-- OPTION B: REGISTER NEW STUDENT -->
+                <form v-else @submit.prevent="registerStudent" class="space-y-4 text-left">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Your Full Name</label>
+                        <input v-model="studentRegisterForm.name" type="text" required placeholder="e.g. Alex Smith" class="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:ring-2 focus:ring-bc-blue focus:outline-none text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Select Your Teacher</label>
+                        <select v-model="studentRegisterForm.teacherId" required class="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-800 focus:ring-2 focus:ring-bc-blue focus:outline-none text-sm">
+                            <option value="" disabled>-- Choose Your Teacher --</option>
+                            <option v-for="t in teachers" :key="t.id" :value="t.id">{{ t.displayName }} (@{{ t.username }})</option>
+                        </select>
+                        <p v-if="teachers.length === 0" class="text-[11px] text-amber-600 mt-1">No teachers registered yet. Please ask your teacher to log in first.</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Select Your Level</label>
+                        <select v-model="studentRegisterForm.level" required class="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-800 focus:ring-2 focus:ring-bc-blue focus:outline-none text-sm">
+                            <option v-for="lvl in levels" :key="lvl" :value="lvl">{{ lvl }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Create Username</label>
+                        <input v-model="studentRegisterForm.username" type="text" required placeholder="e.g. alexsmith" class="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:ring-2 focus:ring-bc-blue focus:outline-none text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Create Password</label>
+                        <input v-model="studentRegisterForm.password" type="password" required placeholder="••••••••" class="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:ring-2 focus:ring-bc-blue focus:outline-none text-sm">
+                    </div>
+                    <p v-if="studentRegisterError" class="text-xs text-rose-600 font-bold text-center bg-rose-50 p-2.5 rounded-xl border border-rose-200">
+                        {{ studentRegisterError }}
+                    </p>
+                    <button type="submit" class="w-full bg-bc-blue hover:bg-bc-navy text-white font-bold py-3.5 px-4 rounded-xl transition flex items-center justify-center gap-2 text-sm shadow-lg">
+                        <i class="fa-solid fa-paper-plane"></i> Submit Registration to Teacher
+                    </button>
+                </form>
+            </div>
+
+            <!-- STATE 2: PENDING APPROVAL SCREEN -->
+            <div v-else-if="activeStudent && activeStudent.status === 'pending'" class="glass-panel rounded-3xl p-8 text-center max-w-lg mx-auto shadow-2xl space-y-4">
+                <div class="w-20 h-20 rounded-full bg-amber-100 text-amber-600 mx-auto flex items-center justify-center text-4xl shadow-inner animate-pulse">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+                <h3 class="text-xl font-bold font-display text-slate-800">Registration Pending Approval</h3>
+                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-amber-900 text-xs text-left space-y-1">
+                    <p><strong>Name:</strong> {{ activeStudent.name }}</p>
+                    <p v-if="activeStudent.username"><strong>Username:</strong> @{{ activeStudent.username }}</p>
+                    <p><strong>Teacher:</strong> {{ activeStudent.teacherName || 'Assigned Teacher' }}</p>
+                    <p><strong>Level:</strong> {{ activeStudent.level }}</p>
+                    <p class="text-slate-500 mt-2">Your teacher has received your request. Please wait for your teacher to approve your account in class!</p>
+                </div>
+                <button @click="resetStudentDevice" class="text-xs text-slate-400 hover:text-slate-600 underline pt-2">
+                    Not {{ activeStudent.name }}? Log out or switch student account
+                </button>
+            </div>
+
+            <!-- STATE 3: APPROVED STUDENT DASHBOARD -->
+            <template v-else-if="activeStudent && activeStudent.status === 'approved'">
+                <!-- STUDENT NAVIGATION TABS -->
+                <div class="flex border-b border-slate-200/60 font-bold text-xs sm:text-sm gap-4 bg-white/40 p-2 rounded-2xl shadow-sm">
+                    <button @click="studentTab = 'wallet'" 
+                            class="pb-2 px-3 transition flex items-center gap-2"
+                            :class="studentTab === 'wallet' ? 'border-b-2 border-bc-blue text-bc-blue font-extrabold' : 'text-slate-500 hover:text-slate-800'">
+                        <i class="fa-solid fa-wallet"></i> My Digital Wallet
+                    </button>
+                    <button @click="studentTab = 'shop'" 
+                            class="pb-2 px-3 transition flex items-center gap-2"
+                            :class="studentTab === 'shop' ? 'border-b-2 border-bc-blue text-bc-blue font-extrabold' : 'text-slate-500 hover:text-slate-800'">
+                        <i class="fa-solid fa-store"></i> Rewards Shop 🎉
+                    </button>
+                    <button @click="studentTab = 'goal'" 
+                            class="pb-2 px-3 transition flex items-center gap-2"
+                            :class="studentTab === 'goal' ? 'border-b-2 border-bc-blue text-bc-blue font-extrabold' : 'text-slate-500 hover:text-slate-800'">
+                        <i class="fa-solid fa-bullseye"></i> Savings Goal
+                    </button>
+                </div>
+
+                <!-- TAB 1: WALLET & PASSBOOK STATEMENT -->
+                <div v-if="studentTab === 'wallet'" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- VIRTUAL BANK CARD & STATS -->
+                    <div class="lg:col-span-1 space-y-6">
+                        <div class="bank-card-gradient rounded-3xl p-6 text-white shadow-2xl relative border border-white/20 transform transition-all duration-300 hover:scale-[1.02]">
+                            <div class="flex justify-between items-start mb-6">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-10 h-7 rounded-md chip-pattern relative overflow-hidden flex items-center justify-center shadow-inner">
+                                        <div class="w-full h-[1px] bg-yellow-900/40 absolute top-2"></div>
+                                        <div class="w-full h-[1px] bg-yellow-900/40 absolute bottom-2"></div>
+                                    </div>
+                                    <i class="fa-solid fa-wifi text-white/60 text-lg rotate-90"></i>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-[10px] font-bold uppercase tracking-widest text-cyan-200 block">YL ONLINE BANKING</span>
+                                    <span class="text-xs font-bold text-white tracking-wider">BRITISH COUNCIL</span>
+                                </div>
+                            </div>
+                            <div class="mb-6">
+                                <div class="text-xs font-medium text-cyan-200 uppercase tracking-wider mb-1">Available Balance</div>
+                                <div class="text-3xl sm:text-4xl font-extrabold font-display tracking-tight text-white flex items-center gap-2">
+                                    <span class="text-bc-gold">{{ settings.currencySymbol }}</span>
+                                    <span>{{ Number(activeStudent.balance).toLocaleString() }}</span>
+                                    <span class="text-xs font-sans text-cyan-200 bg-white/10 px-2.5 py-0.5 rounded-full border border-white/10 ml-1">{{ settings.currencyName }}</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-end pt-3 border-t border-white/10">
+                                <div>
+                                    <div class="text-[9px] uppercase tracking-widest text-cyan-200">Account Holder</div>
+                                    <div class="text-lg font-bold font-display tracking-wide uppercase text-white leading-tight">{{ activeStudent.name }}</div>
+                                    <div class="text-[11px] text-cyan-100 font-mono font-bold mt-0.5">Level: {{ activeStudent.level }}</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-[9px] uppercase tracking-widest text-cyan-200">Saver Rank</div>
+                                    <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold bg-bc-gold text-slate-900 shadow">
+                                        <i class="fa-solid fa-award mr-1"></i>{{ getBadgeTitle(activeStudent.balance) }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Savings Progress Mini Widget -->
+                        <div v-if="activeStudent.goal" class="glass-panel rounded-2xl p-4 shadow-md space-y-2">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="font-bold text-slate-700"><i class="fa-solid fa-bullseye text-bc-cyan mr-1"></i> Goal: {{ activeStudent.goal.title }}</span>
+                                <span class="font-extrabold text-bc-navy">{{ settings.currencySymbol }}{{ activeStudent.balance }} / {{ settings.currencySymbol }}{{ activeStudent.goal.target }}</span>
+                            </div>
+                            <div class="w-full bg-slate-200 h-3 rounded-full overflow-hidden">
+                                <div class="bg-gradient-to-r from-bc-cyan to-bc-blue h-full transition-all duration-500 rounded-full"
+                                     :style="{ width: Math.min(100, Math.round((activeStudent.balance / activeStudent.goal.target) * 100)) + '%' }"></div>
+                            </div>
+                            <div class="text-[10px] text-slate-500 text-right font-bold">
+                                {{ Math.min(100, Math.round((activeStudent.balance / activeStudent.goal.target) * 100)) }}% Achieved!
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <button @click="resetStudentDevice" class="text-xs text-slate-400 hover:text-slate-200 font-semibold transition">
+                                <i class="fa-solid fa-right-from-bracket mr-1"></i> Switch Account / Logout
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- PASSBOOK STATEMENT (TRANSACTIONS) -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <div class="glass-panel rounded-2xl p-6 shadow-xl">
+                            <div class="flex justify-between items-center mb-4">
+                                <div>
+                                    <h2 class="text-lg font-bold font-display text-slate-800">Passbook Statement</h2>
+                                    <p class="text-xs text-slate-500">Live credit (+) and debit (-) history for {{ activeStudent.name }}</p>
+                                </div>
+                                <span class="bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-xl text-xs border border-emerald-200">
+                                    Level: {{ activeStudent.level }}
+                                </span>
+                            </div>
+                            <div class="space-y-3 max-h-[480px] overflow-y-auto custom-scrollbar pr-1">
+                                <div v-for="tx in activeStudentTransactions" :key="tx.id" 
+                                     class="bg-white rounded-xl p-3.5 border border-slate-200/80 flex items-center justify-between shadow-sm">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-xl flex items-center justify-center text-base shrink-0"
+                                             :class="tx.type === 'credit' ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'">
+                                            <i :class="tx.type === 'credit' ? 'fa-solid fa-arrow-down-left' : 'fa-solid fa-arrow-up-right'"></i>
+                                        </div>
+                                        <div>
+                                            <div class="font-bold text-slate-800 text-xs sm:text-sm">{{ tx.reason }}</div>
+                                            <div class="text-[11px] text-slate-400 font-mono mt-0.5">{{ formatDate(tx.timestamp) }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="font-extrabold font-display text-sm sm:text-base block"
+                                              :class="tx.type === 'credit' ? 'text-emerald-600' : 'text-rose-600'">
+                                            {{ tx.type === 'credit' ? '+' : '-' }}{{ settings.currencySymbol }}{{ tx.amount }}
+                                        </span>
+                                        <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Balance: {{ settings.currencySymbol }}{{ tx.balanceAfter }}</span>
+                                    </div>
+                                </div>
+                                <div v-if="activeStudentTransactions.length === 0" class="text-center py-12 text-slate-400 text-xs italic">
+                                    No transaction entries recorded yet.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: STUDENT REWARDS SHOP -->
+                <div v-if="studentTab === 'shop'" class="glass-panel rounded-2xl p-6 shadow-xl space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-200/80 pb-4">
+                        <div>
+                            <h2 class="text-xl font-bold font-display text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-store text-bc-blue"></i> Young Learners Rewards Store
+                            </h2>
+                            <p class="text-xs text-slate-500">Spend your {{ settings.currencyName }} on special classroom rewards and passes!</p>
+                        </div>
+                        <div class="bg-gradient-to-r from-bc-navy to-bc-blue text-white px-4 py-2 rounded-2xl shadow font-display text-sm flex items-center gap-2">
+                            <span>Your Balance:</span>
+                            <span class="text-bc-gold font-extrabold text-base">{{ settings.currencySymbol }}{{ activeStudent.balance }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Rewards Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div v-for="item in rewards" :key="item.id" 
+                             class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-md flex flex-col justify-between hover:border-bc-cyan transition">
+                            <div>
+                                <div class="w-14 h-14 rounded-2xl bg-slate-100 text-bc-blue flex items-center justify-center text-2xl mb-3 shadow-inner">
+                                    <i :class="item.icon || 'fa-solid fa-gift'"></i>
+                                </div>
+                                <h3 class="font-bold text-slate-800 text-base font-display leading-snug">{{ item.title }}</h3>
+                                <p class="text-xs text-slate-500 mt-1 mb-4">{{ item.description }}</p>
+                            </div>
+                            <div class="flex items-center justify-between pt-3 border-t border-slate-100">
+                                <span class="text-lg font-extrabold font-display text-bc-navy">
+                                    {{ settings.currencySymbol }}{{ item.price }}
+                                </span>
+                                <button @click="redeemReward(item)" 
+                                        :disabled="activeStudent.balance < item.price"
+                                        class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-md"
+                                        :class="activeStudent.balance >= item.price ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'bg-slate-200 text-slate-400 cursor-not-allowed'">
+                                    <i class="fa-solid fa-cart-shopping"></i>
+                                    <span>{{ activeStudent.balance >= item.price ? 'Redeem' : 'Need More ' + settings.currencySymbol }}</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- My Redeemed Rewards List -->
+                    <div v-if="myRedemptions.length > 0" class="mt-8 border-t border-slate-200/80 pt-6">
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-3">My Redeemed Rewards History</h3>
+                        <div class="space-y-2">
+                            <div v-for="r in myRedemptions" :key="r.id" class="bg-slate-50 rounded-xl p-3 border border-slate-200 flex justify-between items-center text-xs">
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-solid fa-check-circle text-emerald-500 text-base"></i>
+                                    <div>
+                                        <span class="font-bold text-slate-800">{{ r.rewardTitle }}</span>
+                                        <span class="text-[10px] text-slate-400 block">{{ formatDate(r.timestamp) }}</span>
+                                    </div>
+                                </div>
+                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold"
+                                      :class="r.status === 'fulfilled' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'">
+                                    {{ r.status === 'fulfilled' ? 'Delivered in Class ✓' : 'Awaiting Teacher' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: SAVINGS GOAL TRACKER -->
+                <div v-if="studentTab === 'goal'" class="glass-panel rounded-2xl p-6 shadow-xl max-w-xl mx-auto space-y-6">
+                    <div class="text-center space-y-2">
+                        <div class="w-16 h-16 rounded-full bg-bc-blue/10 text-bc-blue flex items-center justify-center text-3xl mx-auto">
+                            <i class="fa-solid fa-bullseye"></i>
+                        </div>
+                        <h2 class="text-xl font-bold font-display text-slate-800">Set Your Savings Target</h2>
+                        <p class="text-xs text-slate-500">Pick a goal reward to save up for in class!</p>
+                    </div>
+
+                    <form @submit.prevent="saveGoal" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">Goal Name / Description</label>
+                            <input v-model="goalForm.title" type="text" required placeholder="e.g. Homework Pass or £30 Target" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-bc-blue">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">Target Amount ({{ settings.currencySymbol }})</label>
+                            <input v-model.number="goalForm.target" type="number" min="1" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-bc-blue">
+                        </div>
+                        <button type="submit" class="w-full bg-bc-blue hover:bg-bc-navy text-white font-bold py-3 px-4 rounded-xl transition text-xs shadow-md">
+                            Save My Goal
+                        </button>
+                    </form>
+
+                    <div v-if="activeStudent.goal" class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-md space-y-3">
+                        <div class="flex justify-between items-center text-sm font-bold">
+                            <span class="text-slate-800 font-display text-base">{{ activeStudent.goal.title }}</span>
+                            <span class="text-bc-blue">{{ settings.currencySymbol }}{{ activeStudent.balance }} / {{ settings.currencySymbol }}{{ activeStudent.goal.target }}</span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-4 rounded-full overflow-hidden p-0.5 border border-slate-200">
+                            <div class="bg-gradient-to-r from-bc-cyan via-bc-blue to-emerald-500 h-full transition-all duration-500 rounded-full"
+                                 :style="{ width: Math.min(100, Math.round((activeStudent.balance / activeStudent.goal.target) * 100)) + '%' }"></div>
+                        </div>
+                        <p class="text-xs text-center text-slate-500 font-semibold">
+                            You are <strong class="text-emerald-600 font-extrabold">{{ Math.min(100, Math.round((activeStudent.balance / activeStudent.goal.target) * 100)) }}%</strong> of the way there! Keep earning in class! 🎉
+                        </p>
+                    </div>
+                </div>
+            </template>
+        </main>
+
+        <!-- TEACHER DASHBOARD VIEW -->
+        <main v-if="currentRole === 'teacher'" class="space-y-6">
+            <!-- TEACHER ACCOUNT BANNER -->
+            <div v-if="currentTeacher" class="glass-panel-dark rounded-2xl p-4 text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border border-white/10">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-bc-blue text-white flex items-center justify-center font-bold text-lg shadow">
+                        <i class="fa-solid fa-user-tie"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-sm sm:text-base">Logged in as: <span class="text-bc-cyan">{{ currentTeacher.displayName }}</span> <span class="text-xs text-slate-300 font-mono">(@{{ currentTeacher.username }})</span></h2>
+                        <p class="text-xs text-slate-300"><i class="fa-solid fa-shield-halved text-emerald-400 mr-1"></i> Strictly showing students assigned to your profile only.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PENDING APPROVALS ALERT BAR -->
+            <div v-if="pendingStudents.length > 0" class="bg-amber-500 text-slate-900 rounded-2xl p-4 shadow-xl border border-amber-300 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-slate-900 text-amber-400 flex items-center justify-center font-bold text-lg shrink-0">
+                        {{ pendingStudents.length }}
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-sm">New Student Registrations Awaiting Your Approval</h3>
+                        <p class="text-xs text-slate-800">Students registered for your class. Approve them to grant wallet access.</p>
+                    </div>
+                </div>
+                <button @click="teacherTab = 'pending'" class="px-4 py-2 bg-slate-900 text-white font-bold rounded-xl text-xs hover:bg-slate-800 transition shadow">
+                    Review Pending Requests ({{ pendingStudents.length }})
+                </button>
+            </div>
+
+            <div class="glass-panel rounded-2xl p-4 sm:p-6 shadow-xl">
+                <!-- Level Selector Tabs Bar -->
+                <div class="mb-4">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Select YL Level Dashboard</label>
+                    <div class="flex items-center gap-1.5 overflow-x-auto pb-2 custom-scrollbar">
+                        <button v-for="lvl in levels" :key="lvl" 
+                                @click="teacherLevel = lvl"
+                                class="px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center gap-1.5"
+                                :class="teacherLevel === lvl ? 'bg-bc-navy text-white shadow-md' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'">
+                            <span>{{ lvl }}</span>
+                            <span class="px-1.5 py-0.2 rounded-full text-[10px]" :class="teacherLevel === lvl ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-600'">
+                                {{ getApprovedStudentsInLevel(lvl).length }}
+                            </span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Teacher Quick Action Buttons -->
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-t border-slate-200/80 pt-4">
+                    <div class="text-xs text-slate-600">
+                        Viewing Roster for: <strong class="text-bc-navy font-bold text-sm ml-1">{{ teacherLevel }}</strong>
+                        <span class="text-slate-400 font-medium ml-2">({{ teacherFilteredApprovedStudents.length }} Active Students)</span>
+                    </div>
+                    <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                        <button @click="openBatchRewardModal" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Reward Whole Class
+                        </button>
+                        <button @click="openAddStudentModal" class="px-3.5 py-2 bg-bc-blue hover:bg-bc-navy text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow">
+                            <i class="fa-solid fa-user-plus"></i> Add Student Manually
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TEACHER TAB NAVIGATION -->
+            <div class="flex border-b border-slate-200/60 font-bold text-xs sm:text-sm gap-6 bg-white/40 p-2 rounded-xl">
+                <button @click="teacherTab = 'roster'" 
+                        class="pb-2 transition flex items-center gap-2"
+                        :class="teacherTab === 'roster' ? 'border-b-2 border-bc-blue text-bc-blue font-extrabold' : 'text-slate-500 hover:text-slate-800'">
+                    <i class="fa-solid fa-users"></i> My Active Roster ({{ teacherLevel }})
+                </button>
+                <button @click="teacherTab = 'pending'" 
+                        class="pb-2 transition flex items-center gap-2 relative"
+                        :class="teacherTab === 'pending' ? 'border-b-2 border-bc-blue text-bc-blue font-extrabold' : 'text-slate-500 hover:text-slate-800'">
+                    <i class="fa-solid fa-user-clock"></i> Pending Approvals
+                    <span v-if="pendingStudents.length > 0" class="ml-1 px-2 py-0.5 rounded-full text-[10px] bg-amber-500 text-slate-900 font-extrabold">
+                        {{ pendingStudents.length }}
+                    </span>
+                </button>
+                <button @click="teacherTab = 'redemptions'" 
+                        class="pb-2 transition flex items-center gap-2"
+                        :class="teacherTab === 'redemptions' ? 'border-b-2 border-bc-blue text-bc-blue font-extrabold' : 'text-slate-500 hover:text-slate-800'">
+                    <i class="fa-solid fa-gift"></i> Reward Redemptions
+                    <span v-if="pendingRedemptionsCount > 0" class="ml-1 px-2 py-0.5 rounded-full text-[10px] bg-emerald-500 text-white font-extrabold">
+                        {{ pendingRedemptionsCount }}
+                    </span>
+                </button>
+                <button @click="teacherTab = 'history'" 
+                        class="pb-2 transition flex items-center gap-2"
+                        :class="teacherTab === 'history' ? 'border-b-2 border-bc-blue text-bc-blue font-extrabold' : 'text-slate-500 hover:text-slate-800'">
+                    <i class="fa-solid fa-receipt"></i> Class Transaction Log
+                </button>
+            </div>
+
+            <!-- TEACHER TAB 1: STUDENT ROSTER GRID -->
+            <div v-if="teacherTab === 'roster'" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div v-for="student in teacherFilteredApprovedStudents" :key="student.id" 
+                         class="glass-panel rounded-2xl p-4 shadow-md border border-slate-200/80 flex flex-col justify-between hover:border-bc-blue/40 transition">
+                        <div class="flex items-start justify-between gap-2 mb-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-bc-navy to-bc-blue text-white font-bold text-base flex items-center justify-center shadow">
+                                    {{ student.name.charAt(0) }}
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-slate-800 text-base font-display leading-tight">{{ student.name }}</h3>
+                                    <p v-if="student.username" class="text-[11px] font-semibold text-bc-blue font-mono">@{{ student.username }}</p>
+                                    <div class="flex flex-wrap gap-1 mt-0.5">
+                                        <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full inline-block">
+                                            <i class="fa-solid fa-award text-bc-gold mr-0.5"></i> {{ getBadgeTitle(student.balance) }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-[10px] uppercase font-bold text-slate-400">Balance</div>
+                                <div class="text-xl font-black font-display text-bc-navy">
+                                    {{ settings.currencySymbol }}{{ Number(student.balance).toLocaleString() }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Reason Presets Bar -->
+                        <div class="mb-3 bg-slate-50 p-2 rounded-xl border border-slate-100">
+                            <div class="text-[10px] uppercase font-bold text-slate-400 mb-1.5 flex justify-between">
+                                <span>Quick Credit / Debit</span>
+                                <span class="text-bc-blue font-bold">1-Click</span>
+                            </div>
+                            <div class="grid grid-cols-4 gap-1.5">
+                                <button @click="quickAdjustBalance(student, 1, 'Great Participation 👏')" title="+1 Participation" class="py-1 px-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-bold transition text-center">
+                                    +1 <i class="fa-solid fa-hand text-[10px]"></i>
+                                </button>
+                                <button @click="quickAdjustBalance(student, 2, 'Homework Completed 📝')" title="+2 Homework" class="py-1 px-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-bold transition text-center">
+                                    +2 <i class="fa-solid fa-book text-[10px]"></i>
+                                </button>
+                                <button @click="quickAdjustBalance(student, 5, 'Star Student ⭐')" title="+5 Star Student" class="py-1 px-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-bold transition text-center">
+                                    +5 <i class="fa-solid fa-star text-[10px]"></i>
+                                </button>
+                                <button @click="quickAdjustBalance(student, -1, 'Penalty ⚠️')" title="-1 Penalty" class="py-1 px-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-xs font-bold transition text-center">
+                                    -1 <i class="fa-solid fa-minus text-[10px]"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2 pt-2 border-t border-slate-100">
+                            <button @click="openCustomTransactionModal(student)" class="flex-1 py-1.5 bg-bc-blue/10 hover:bg-bc-blue hover:text-white text-bc-blue font-bold rounded-xl text-xs transition flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-pen-to-square"></i> Custom +/-
+                            </button>
+                            <button @click="openEditStudentModal(student)" class="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition" title="Edit Student">
+                                <i class="fa-solid fa-gear"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-if="teacherFilteredApprovedStudents.length === 0" class="glass-panel rounded-2xl p-10 text-center text-slate-400">
+                    <p class="text-sm font-semibold">No active students in level <strong class="text-bc-navy">{{ teacherLevel }}</strong> for your profile!</p>
+                    <p class="text-xs text-slate-500 mt-1">Students can register selecting your teacher profile, or you can add them manually.</p>
+                    <button @click="openAddStudentModal" class="mt-4 px-4 py-2 bg-bc-blue text-white rounded-xl text-xs font-bold shadow">
+                        + Add Student Manually
+                    </button>
+                </div>
+            </div>
+
+            <!-- TEACHER TAB 2: PENDING APPROVALS LIST -->
+            <div v-if="teacherTab === 'pending'" class="glass-panel rounded-2xl p-6 shadow-xl space-y-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-lg font-bold font-display text-slate-800">Pending Student Registrations</h2>
+                        <p class="text-xs text-slate-500">Approve students to create their digital wallet and add them to your roster</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div v-for="st in pendingStudents" :key="st.id" class="bg-white rounded-2xl p-4 border border-amber-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <div class="font-bold text-slate-800 text-base font-display">{{ st.name }} <span v-if="st.username" class="text-xs text-slate-400 font-mono">(@{{ st.username }})</span></div>
+                            <span class="text-xs font-bold text-bc-blue bg-blue-50 px-2.5 py-0.5 rounded-full inline-block mt-1">
+                                Level: {{ st.level }}
+                            </span>
+                            <div class="text-[10px] text-slate-400 mt-1">Requested: {{ formatDate(st.createdAt) }}</div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button @click="approveStudent(st)" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1 shadow">
+                                <i class="fa-solid fa-check"></i> Approve
+                            </button>
+                            <button @click="rejectStudent(st.id)" class="px-3 py-2 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded-xl text-xs font-bold transition">
+                                Reject
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-if="pendingStudents.length === 0" class="text-center py-12 text-slate-400 text-xs italic">
+                    <i class="fa-solid fa-circle-check text-emerald-500 text-2xl mb-2 block"></i>
+                    No pending student registrations for your profile. All caught up!
+                </div>
+            </div>
+
+            <!-- TEACHER TAB 3: REWARD REDEMPTIONS -->
+            <div v-if="teacherTab === 'redemptions'" class="glass-panel rounded-2xl p-6 shadow-xl space-y-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-lg font-bold font-display text-slate-800">Student Reward Requests</h2>
+                        <p class="text-xs text-slate-500">Review student store purchases and mark them as delivered in class</p>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <div v-for="red in teacherRedemptions" :key="red.id" class="bg-white rounded-xl p-4 border border-slate-200 flex justify-between items-center shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-bc-blue/10 text-bc-blue flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-gift"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-800 text-sm">{{ red.rewardTitle }}</h4>
+                                <p class="text-xs text-slate-500 font-semibold">Student: <strong class="text-bc-navy">{{ red.studentName }}</strong> ({{ red.level }})</p>
+                                <div class="text-[10px] text-slate-400 mt-0.5">{{ formatDate(red.timestamp) }}</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="font-bold text-slate-800 text-sm font-display">{{ settings.currencySymbol }}{{ red.price }}</span>
+                            <button v-if="red.status === 'pending'" @click="fulfillRedemption(red)" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs shadow">
+                                <i class="fa-solid fa-check mr-1"></i> Mark Delivered
+                            </button>
+                            <span v-else class="px-3 py-1 bg-slate-100 text-slate-500 font-bold rounded-xl text-xs">
+                                Delivered ✓
+                            </span>
+                        </div>
+                    </div>
+
+                    <div v-if="teacherRedemptions.length === 0" class="text-center py-10 text-slate-400 text-xs italic">
+                        No rewards redeemed yet by your students.
+                    </div>
+                </div>
+            </div>
+
+            <!-- TEACHER TAB 4: MASTER AUDIT LOG -->
+            <div v-if="teacherTab === 'history'" class="glass-panel rounded-2xl p-6 shadow-xl">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h2 class="text-lg font-bold font-display text-slate-800">Class Transaction History</h2>
+                        <p class="text-xs text-slate-500">Live audit log of all money credited or debited for your students</p>
+                    </div>
+                </div>
+
+                <div class="space-y-2 max-h-[500px] overflow-y-auto custom-scrollbar pr-1">
+                    <div v-for="tx in teacherTransactions" :key="tx.id" class="bg-white rounded-xl p-3 border border-slate-200/80 flex items-center justify-between text-xs">
+                        <div class="flex items-center gap-3">
+                            <span class="w-2.5 h-2.5 rounded-full" :class="tx.type === 'credit' ? 'bg-emerald-500' : 'bg-rose-500'"></span>
+                            <div>
+                                <span class="font-bold text-slate-800">{{ tx.studentName }}</span>
+                                <span class="text-slate-400 ml-2 font-mono">({{ tx.level }})</span>
+                                <div class="text-slate-600 mt-0.5">{{ tx.reason }}</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-bold font-display text-sm" :class="tx.type === 'credit' ? 'text-emerald-600' : 'text-rose-600'">
+                                {{ tx.type === 'credit' ? '+' : '-' }}{{ settings.currencySymbol }}{{ tx.amount }}
+                            </span>
+                            <span class="text-[10px] text-slate-400 block font-mono">{{ formatDate(tx.timestamp) }}</span>
+                        </div>
+                    </div>
+
+                    <div v-if="teacherTransactions.length === 0" class="text-center py-10 text-slate-400 text-xs">
+                        No transactions recorded for your class yet.
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- MODALS -->
+
+        <!-- TEACHER AUTHENTICATION MODAL -->
+        <div v-if="showPinModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4">
+                <div class="w-14 h-14 bg-bc-blue/10 text-bc-blue rounded-full mx-auto flex items-center justify-center text-2xl">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <div class="text-center">
+                    <h3 class="text-lg font-bold font-display text-slate-800">Teacher Profile Access</h3>
+                    <p class="text-xs text-slate-500">Log in or create a teacher profile to manage your classes</p>
+                </div>
+
+                <!-- Tabs for Login / Register -->
+                <div class="flex bg-slate-100 p-1 rounded-xl text-xs font-bold">
+                    <button @click="teacherAuthTab = 'login'; pinError = ''" 
+                            class="flex-1 py-1.5 rounded-lg transition"
+                            :class="teacherAuthTab === 'login' ? 'bg-white text-bc-navy shadow' : 'text-slate-500 hover:text-slate-800'">
+                        Teacher Login
+                    </button>
+                    <button @click="teacherAuthTab = 'register'; pinError = ''" 
+                            class="flex-1 py-1.5 rounded-lg transition"
+                            :class="teacherAuthTab === 'register' ? 'bg-white text-bc-navy shadow' : 'text-slate-500 hover:text-slate-800'">
+                        New Teacher Profile
+                    </button>
+                </div>
+
+                <!-- LOGIN FORM -->
+                <form v-if="teacherAuthTab === 'login'" @submit.prevent="verifyTeacherCredentials" class="space-y-3">
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Username</label>
+                        <input v-model="teacherLoginForm.username" type="text" required placeholder="e.g. mrssmith" 
+                               class="w-full bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-bc-blue focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Password</label>
+                        <input v-model="teacherLoginForm.password" type="password" required placeholder="••••••••" 
+                               class="w-full bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-bc-blue focus:outline-none">
+                    </div>
+                    <p v-if="pinError" class="text-xs text-rose-600 font-bold text-center">{{ pinError }}</p>
+                    <div class="flex gap-2 pt-2">
+                        <button type="button" @click="showPinModal = false" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs">Cancel</button>
+                        <button type="submit" class="flex-1 py-2.5 bg-bc-blue hover:bg-bc-navy text-white font-bold rounded-xl text-xs shadow">Login</button>
+                    </div>
+                </form>
+
+                <!-- REGISTER FORM -->
+                <form v-else @submit.prevent="registerTeacher" class="space-y-3">
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Full Name / Title</label>
+                        <input v-model="teacherRegisterForm.displayName" type="text" required placeholder="e.g. Mr. David" 
+                               class="w-full bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-bc-blue focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Username</label>
+                        <input v-model="teacherRegisterForm.username" type="text" required placeholder="e.g. mrdavid" 
+                               class="w-full bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-bc-blue focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Password</label>
+                        <input v-model="teacherRegisterForm.password" type="password" required placeholder="••••••••" 
+                               class="w-full bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-bc-blue focus:outline-none">
+                    </div>
+                    <p v-if="pinError" class="text-xs text-rose-600 font-bold text-center">{{ pinError }}</p>
+                    <div class="flex gap-2 pt-2">
+                        <button type="button" @click="showPinModal = false" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs">Cancel</button>
+                        <button type="submit" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs shadow">Create Profile</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- CUSTOM TRANSACTION MODAL -->
+        <div v-if="showCustomTxModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-bold font-display text-slate-800">Transaction for {{ activeTxStudent ? activeTxStudent.name : '' }}</h3>
+                    <button @click="showCustomTxModal = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+                <div class="flex gap-2 p-1 bg-slate-100 rounded-xl">
+                    <button @click="txType = 'credit'" class="flex-1 py-2 rounded-lg text-xs font-bold transition"
+                            :class="txType === 'credit' ? 'bg-emerald-600 text-white shadow' : 'text-slate-600'">
+                        + Credit (Add Money)
+                    </button>
+                    <button @click="txType = 'debit'" class="flex-1 py-2 rounded-lg text-xs font-bold transition"
+                            :class="txType === 'debit' ? 'bg-rose-600 text-white shadow' : 'text-slate-600'">
+                        - Debit (Deduct Money)
+                    </button>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Amount ({{ settings.currencyName }})</label>
+                    <input v-model.number="txAmount" type="number" min="1" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-base font-bold text-slate-800 focus:ring-2 focus:ring-bc-blue focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Reason / Description</label>
+                    <input v-model="txReason" type="text" placeholder="e.g. Excellent Reading..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold focus:ring-2 focus:ring-bc-blue focus:outline-none">
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <button @click="showCustomTxModal = false" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs">Cancel</button>
+                    <button @click="executeCustomTransaction" class="flex-1 py-2.5 bg-bc-blue hover:bg-bc-navy text-white font-bold rounded-xl text-xs">Confirm Transaction</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- REWARD WHOLE CLASS BATCH MODAL -->
+        <div v-if="showBatchModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4">
+                <h3 class="text-lg font-bold font-display text-slate-800">Reward Whole Class 🎉</h3>
+                <p class="text-xs text-slate-500">Add bonus {{ settings.currencyName }} to every active student in level <strong class="text-bc-navy">{{ teacherLevel }}</strong></p>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Bonus Amount per Student</label>
+                    <input v-model.number="batchAmount" type="number" min="1" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-base font-bold text-slate-800 focus:ring-2 focus:ring-bc-blue">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Reason</label>
+                    <input v-model="batchReason" type="text" placeholder="e.g. Great Teamwork!" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold focus:ring-2 focus:ring-bc-blue">
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <button @click="showBatchModal = false" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs">Cancel</button>
+                    <button @click="executeBatchReward" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs">Reward All Students</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADD / EDIT STUDENT MODAL -->
+        <div v-if="showStudentModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4">
+                <h3 class="text-lg font-bold font-display text-slate-800">{{ isEditingStudent ? 'Edit Student' : 'Add New Student' }}</h3>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Student Full Name</label>
+                    <input v-model="studentForm.name" type="text" placeholder="e.g. Alex Smith" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold focus:ring-2 focus:ring-bc-blue">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Username</label>
+                    <input v-model="studentForm.username" type="text" placeholder="e.g. alexsmith" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold focus:ring-2 focus:ring-bc-blue">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Password</label>
+                    <input v-model="studentForm.password" type="text" placeholder="e.g. secret123" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold focus:ring-2 focus:ring-bc-blue">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Level</label>
+                    <select v-model="studentForm.level" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold">
+                        <option v-for="lvl in levels" :key="lvl" :value="lvl">{{ lvl }}</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Initial Balance ({{ settings.currencyName }})</label>
+                    <input v-model.number="studentForm.balance" type="number" min="0" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold">
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <button v-if="isEditingStudent" @click="deleteStudent(studentForm.id)" class="px-3 py-2.5 bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold rounded-xl text-xs">Delete</button>
+                    <button @click="showStudentModal = false" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs">Cancel</button>
+                    <button @click="saveStudent" class="flex-1 py-2.5 bg-bc-blue hover:bg-bc-navy text-white font-bold rounded-xl text-xs">Save Student</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TOAST NOTIFICATION -->
+        <div v-if="toast.visible" 
+             class="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-slate-700 animate-bounce">
+            <i class="fa-solid font-bold text-emerald-400" :class="toast.icon || 'fa-circle-check'"></i>
+            <span class="text-xs font-bold">{{ toast.message }}</span>
+        </div>
+
+        <!-- SHARE / QR MODAL -->
+        <div v-if="showShareModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl text-center space-y-4">
+                <h3 class="text-lg font-bold font-display text-slate-800">Share App Link</h3>
+                <div id="qrcode" class="flex justify-center p-3 bg-slate-50 rounded-2xl border border-slate-200 min-h-[160px] items-center"></div>
+                <p class="text-xs text-slate-500">Scan QR code or copy link to open on student devices</p>
+                <div class="flex gap-2">
+                    <button @click="showShareModal = false" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs">Close</button>
+                    <button @click="copyAppUrl" class="flex-1 py-2.5 bg-bc-blue hover:bg-bc-navy text-white font-bold rounded-xl text-xs shadow"><i class="fa-solid fa-copy mr-1"></i> Copy Link</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIREBASE MODULE & VUE LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'bc-yl-wallet-v1';
+        let app, auth, db;
+
+        try {
+            const firebaseConfig = typeof __firebase_config !== 'undefined' ? (typeof __firebase_config === 'string' ? JSON.parse(__firebase_config) : __firebase_config) : {
+                apiKey: "demo-api-key",
+                authDomain: "demo-app.firebaseapp.com",
+                projectId: "demo-app",
+                storageBucket: "demo-app.appspot.com",
+                messagingSenderId: "123456789",
+                appId: "1:123456789:web:demo"
+            };
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+        } catch (err) {
+            console.warn("Firebase initialization fallback:", err);
+        }
+
+        // Required 14 Levels
+        const LEVELS = [
+            'UPP1', 'UPP2', 'UPP3', 'UPP4', 'UPP5', 'UPP6',
+            'LS A1', 'LS A2', 'LS B1', 'LS B2',
+            'US A1', 'US A2', 'US B1', 'US B2'
+        ];
+
+        // Default Classroom Rewards Preset
+        const DEFAULT_REWARDS = [
+            { id: 'r1', title: 'Homework Pass', price: 20, icon: 'fa-solid fa-file-shield', description: 'Skip 1 standard homework activity' },
+            { id: 'r2', title: 'Pick Your Seat for 1 Week', price: 15, icon: 'fa-solid fa-chair', description: 'Choose your seating spot next to a classmate' },
+            { id: 'r3', title: 'Teacher Assistant for Day', price: 25, icon: 'fa-solid fa-hand-holding-heart', description: 'Pass out worksheets & lead warm-ups' },
+            { id: 'r4', title: 'Choose Classroom Music', price: 10, icon: 'fa-solid fa-music', description: 'Pick the background song for group work' },
+            { id: 'r5', title: 'Special Sticker Pack', price: 5, icon: 'fa-solid fa-note-sticky', description: 'Exclusive British Council reward stickers' }
+        ];
+
+        const { createApp, ref, computed, onMounted, nextTick } = Vue;
+
+        createApp({
+            setup() {
+                // Sound Synthesizer
+                const playSound = (type) => {
+                    try {
+                        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        if (type === 'deposit') {
+                            osc.type = 'sine';
+                            osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+                            osc.frequency.exponentialRampToValueAtTime(783.99, ctx.currentTime + 0.15);
+                            gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                            osc.start();
+                            osc.stop(ctx.currentTime + 0.3);
+                        } else if (type === 'debit') {
+                            osc.type = 'triangle';
+                            osc.frequency.setValueAtTime(400, ctx.currentTime);
+                            osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.2);
+                            gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+                            osc.start();
+                            osc.stop(ctx.currentTime + 0.2);
+                        } else if (type === 'fanfare') {
+                            if (window.confetti) {
+                                confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+                            }
+                        }
+                    } catch (e) {}
+                };
+
+                const levels = ref(LEVELS);
+                const settings = ref({
+                    currencyName: 'BC Pounds',
+                    currencySymbol: '£'
+                });
+
+                const currentRole = ref('student');
+                const studentTab = ref('wallet');
+                const teacherTab = ref('roster');
+
+                // Student Authentication States
+                const studentAuthMode = ref('login'); // 'login' or 'register'
+                const studentLoginForm = ref({ username: '', password: '' });
+                const studentLoginError = ref('');
+                const studentRegisterError = ref('');
+                const studentRegisterForm = ref({ level: 'UPP1', teacherId: '', name: '', username: '', password: '' });
+
+                // Local Device Memory for Privacy Binding
+                const currentStudentId = ref(localStorage.getItem('bc_student_device_id') || '');
+
+                // Teacher Profile & Authentication State
+                const teachers = ref([]);
+                const currentTeacher = ref(JSON.parse(localStorage.getItem('bc_current_teacher') || 'null'));
+                const teacherAuthTab = ref('login');
+                const teacherLoginForm = ref({ username: '', password: '' });
+                const teacherRegisterForm = ref({ displayName: '', username: '', password: '' });
+                const pinError = ref('');
+
+                // Firestore Datasets
+                const students = ref([]);
+                const transactions = ref([]);
+                const rewards = ref(DEFAULT_REWARDS);
+                const redemptions = ref([]);
+
+                // Selection & Registration States
+                const teacherLevel = ref('UPP1');
+                const goalForm = ref({ title: 'Homework Pass', target: 20 });
+                const showShareModal = ref(false);
+                const showPinModal = ref(false);
+                const showCustomTxModal = ref(false);
+                const activeTxStudent = ref(null);
+                const txType = ref('credit');
+                const txAmount = ref(5);
+                const txReason = ref('');
+                const showBatchModal = ref(false);
+                const batchAmount = ref(5);
+                const batchReason = ref('Whole Class Reward ⭐');
+                const showStudentModal = ref(false);
+                const isEditingStudent = ref(false);
+                const studentForm = ref({ id: '', name: '', username: '', password: '', level: 'UPP1', balance: 0 });
+
+                const toast = ref({ visible: false, message: '', icon: '' });
+                const showToast = (message, icon = 'fa-circle-check') => {
+                    toast.value = { visible: true, message, icon };
+                    setTimeout(() => { toast.value.visible = false; }, 3000);
+                };
+
+                const initFirebase = async () => {
+                    try {
+                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                            await signInWithCustomToken(auth, __initial_auth_token);
+                        } else {
+                            await signInAnonymously(auth);
+                        }
+
+                        // Subscribe to Teachers
+                        const teachersRef = collection(db, 'artifacts', appId, 'public', 'data', 'teachers');
+                        onSnapshot(teachersRef, (snapshot) => {
+                            const list = [];
+                            snapshot.forEach(docSnap => list.push({ id: docSnap.id, ...docSnap.data() }));
+                            teachers.value = list;
+                            if (list.length > 0 && !studentRegisterForm.value.teacherId) {
+                                studentRegisterForm.value.teacherId = list[0].id;
+                            }
+                        }, (err) => console.error("Firestore teachers error:", err));
+
+                        // Subscribe to Students
+                        const studentsRef = collection(db, 'artifacts', appId, 'public', 'data', 'students');
+                        onSnapshot(studentsRef, (snapshot) => {
+                            const list = [];
+                            snapshot.forEach(docSnap => list.push({ id: docSnap.id, ...docSnap.data() }));
+                            students.value = list;
+                        }, (err) => console.error("Firestore students error:", err));
+
+                        // Subscribe to Transactions
+                        const txRef = collection(db, 'artifacts', appId, 'public', 'data', 'transactions');
+                        onSnapshot(txRef, (snapshot) => {
+                            const list = [];
+                            snapshot.forEach(docSnap => list.push({ id: docSnap.id, ...docSnap.data() }));
+                            list.sort((a, b) => b.timestamp - a.timestamp);
+                            transactions.value = list;
+                        }, (err) => console.error("Firestore transactions error:", err));
+
+                        // Subscribe to Redemptions
+                        const redRef = collection(db, 'artifacts', appId, 'public', 'data', 'redemptions');
+                        onSnapshot(redRef, (snapshot) => {
+                            const list = [];
+                            snapshot.forEach(docSnap => list.push({ id: docSnap.id, ...docSnap.data() }));
+                            list.sort((a, b) => b.timestamp - a.timestamp);
+                            redemptions.value = list;
+                        }, (err) => console.error("Firestore redemptions error:", err));
+
+                    } catch (err) {
+                        console.error("Auth / Cloud Sync error:", err);
+                    }
+                };
+
+                const activeStudent = computed(() => {
+                    if (!currentStudentId.value) return null;
+                    return students.value.find(s => s.id === currentStudentId.value) || null;
+                });
+
+                const activeStudentTransactions = computed(() => {
+                    if (!activeStudent.value) return [];
+                    return transactions.value.filter(t => t.studentId === activeStudent.value.id);
+                });
+
+                // STRICT ISOLATION: Pending Students only for current teacher (or unassigned fallback)
+                const pendingStudents = computed(() => {
+                    if (!currentTeacher.value) return [];
+                    return students.value.filter(s => 
+                        s.status === 'pending' && 
+                        (s.teacherId === currentTeacher.value.id || !s.teacherId)
+                    );
+                });
+
+                const myRedemptions = computed(() => {
+                    if (!activeStudent.value) return [];
+                    return redemptions.value.filter(r => r.studentId === activeStudent.value.id);
+                });
+
+                // STRICT ISOLATION: Teacher redemptions
+                const teacherRedemptions = computed(() => {
+                    if (!currentTeacher.value) return [];
+                    const myStudentIds = new Set(students.value.filter(s => s.teacherId === currentTeacher.value.id).map(s => s.id));
+                    return redemptions.value.filter(r => myStudentIds.has(r.studentId) || r.teacherId === currentTeacher.value.id);
+                });
+
+                const pendingRedemptionsCount = computed(() => {
+                    return teacherRedemptions.value.filter(r => r.status === 'pending').length;
+                });
+
+                // STRICT ISOLATION: Master transaction history for current teacher's students only
+                const teacherTransactions = computed(() => {
+                    if (!currentTeacher.value) return [];
+                    const myStudentIds = new Set(students.value.filter(s => s.teacherId === currentTeacher.value.id).map(s => s.id));
+                    return transactions.value.filter(t => myStudentIds.has(t.studentId) || t.teacherId === currentTeacher.value.id);
+                });
+
+                // STRICT ISOLATION: Active Roster for logged-in teacher only
+                const teacherFilteredApprovedStudents = computed(() => {
+                    if (!currentTeacher.value) return [];
+                    return students.value.filter(s => 
+                        s.status === 'approved' && 
+                        s.level === teacherLevel.value && 
+                        s.teacherId === currentTeacher.value.id
+                    );
+                });
+
+                const loginStudentWithCredentials = () => {
+                    studentLoginError.value = '';
+                    const uname = studentLoginForm.value.username.trim().toLowerCase();
+                    const pwd = studentLoginForm.value.password.trim();
+
+                    if (!uname || !pwd) {
+                        studentLoginError.value = 'Please enter both username and password';
+                        return;
+                    }
+
+                    const found = students.value.find(s => s.username && s.username.toLowerCase() === uname);
+                    if (!found) {
+                        studentLoginError.value = 'Username not found. Please check spelling or register as new.';
+                        return;
+                    }
+                    if (found.password !== pwd) {
+                        studentLoginError.value = 'Incorrect password. Please try again.';
+                        return;
+                    }
+
+                    currentStudentId.value = found.id;
+                    localStorage.setItem('bc_student_device_id', found.id);
+                    studentLoginForm.value = { username: '', password: '' };
+
+                    if (found.status === 'pending') {
+                        showToast(`Welcome ${found.name}! Account awaiting teacher approval.`, 'fa-clock');
+                    } else {
+                        showToast(`Welcome back, ${found.name}!`, 'fa-user');
+                    }
+                };
+
+                const handleModeToggle = () => {
+                    if (currentRole.value === 'teacher') {
+                        currentRole.value = 'student';
+                        showToast('Switched to Student Mode');
+                    } else {
+                        if (currentTeacher.value) {
+                            currentRole.value = 'teacher';
+                            showToast(`Welcome back, ${currentTeacher.value.displayName}`, 'fa-chalkboard-user');
+                        } else {
+                            teacherAuthTab.value = 'login';
+                            teacherLoginForm.value = { username: '', password: '' };
+                            pinError.value = '';
+                            showPinModal.value = true;
+                        }
+                    }
+                };
+
+                const verifyTeacherCredentials = () => {
+                    const uname = teacherLoginForm.value.username.trim().toLowerCase();
+                    const pwd = teacherLoginForm.value.password.trim();
+
+                    if (!uname || !pwd) {
+                        pinError.value = 'Please enter both username and password';
+                        return;
+                    }
+
+                    const found = teachers.value.find(t => t.username.toLowerCase() === uname && t.password === pwd);
+                    if (found) {
+                        currentTeacher.value = found;
+                        localStorage.setItem('bc_current_teacher', JSON.stringify(found));
+                        currentRole.value = 'teacher';
+                        showPinModal.value = false;
+                        pinError.value = '';
+                        showToast(`Welcome back, ${found.displayName}!`, 'fa-chalkboard-user');
+                    } else {
+                        pinError.value = 'Invalid username or password';
+                    }
+                };
+
+                const registerTeacher = async () => {
+                    const name = teacherRegisterForm.value.displayName.trim();
+                    const uname = teacherRegisterForm.value.username.trim().toLowerCase();
+                    const pwd = teacherRegisterForm.value.password.trim();
+
+                    if (!name || !uname || !pwd) {
+                        pinError.value = 'Please fill in all fields';
+                        return;
+                    }
+
+                    if (teachers.value.some(t => t.username.toLowerCase() === uname)) {
+                        pinError.value = 'Username already registered. Please log in.';
+                        return;
+                    }
+
+                    const newTeacher = {
+                        displayName: name,
+                        username: uname,
+                        password: pwd,
+                        createdAt: Date.now()
+                    };
+
+                    try {
+                        const docRef = await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'teachers'), newTeacher);
+                        const created = { id: docRef.id, ...newTeacher };
+                        currentTeacher.value = created;
+                        localStorage.setItem('bc_current_teacher', JSON.stringify(created));
+                        currentRole.value = 'teacher';
+                        showPinModal.value = false;
+                        pinError.value = '';
+                        showToast(`Profile created! Welcome ${name}`, 'fa-user-check');
+                    } catch (e) {
+                        const localTeacher = { id: 't_' + Date.now(), ...newTeacher };
+                        teachers.value.push(localTeacher);
+                        currentTeacher.value = localTeacher;
+                        localStorage.setItem('bc_current_teacher', JSON.stringify(localTeacher));
+                        currentRole.value = 'teacher';
+                        showPinModal.value = false;
+                        pinError.value = '';
+                        showToast(`Profile created! Welcome ${name}`, 'fa-user-check');
+                    }
+                };
+
+                const logoutTeacher = () => {
+                    currentTeacher.value = null;
+                    localStorage.removeItem('bc_current_teacher');
+                    currentRole.value = 'student';
+                    showToast('Logged out of Teacher Profile');
+                };
+
+                const getBadgeTitle = (balance) => {
+                    const bal = Number(balance) || 0;
+                    if (bal >= 100) return 'Platinum Legend';
+                    if (bal >= 50) return 'Gold Scholar';
+                    if (bal >= 25) return 'Silver Saver';
+                    if (bal >= 10) return 'Bronze Builder';
+                    return 'Starter Saver';
+                };
+
+                const getApprovedStudentsInLevel = (lvl) => {
+                    if (!currentTeacher.value) return [];
+                    return students.value.filter(s => s.level === lvl && s.status === 'approved' && s.teacherId === currentTeacher.value.id);
+                };
+
+                const registerStudent = async () => {
+                    studentRegisterError.value = '';
+                    const name = studentRegisterForm.value.name.trim();
+                    const uname = studentRegisterForm.value.username.trim().toLowerCase();
+                    const pwd = studentRegisterForm.value.password.trim();
+                    const level = studentRegisterForm.value.level;
+                    const selectedTeacherId = studentRegisterForm.value.teacherId;
+
+                    if (!name || !uname || !pwd || !selectedTeacherId) {
+                        studentRegisterError.value = 'Please fill in all fields, including choosing your teacher';
+                        return;
+                    }
+
+                    if (students.value.some(s => s.username && s.username.toLowerCase() === uname)) {
+                        studentRegisterError.value = 'Username is already taken. Please choose another username.';
+                        return;
+                    }
+
+                    const selectedTeacherObj = teachers.value.find(t => t.id === selectedTeacherId);
+
+                    const newStudent = {
+                        name: name,
+                        username: uname,
+                        password: pwd,
+                        level: level,
+                        teacherId: selectedTeacherId,
+                        teacherName: selectedTeacherObj ? selectedTeacherObj.displayName : 'Teacher',
+                        balance: 0,
+                        status: 'pending',
+                        goal: null,
+                        createdAt: Date.now()
+                    };
+
+                    try {
+                        const docRef = await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'students'), newStudent);
+                        currentStudentId.value = docRef.id;
+                        localStorage.setItem('bc_student_device_id', docRef.id);
+                        studentRegisterForm.value = { level: 'UPP1', teacherId: teachers.value.length > 0 ? teachers.value[0].id : '', name: '', username: '', password: '' };
+                        showToast('Registration sent to teacher!');
+                    } catch (e) {
+                        const localId = 'st_' + Date.now();
+                        students.value.push({ id: localId, ...newStudent });
+                        currentStudentId.value = localId;
+                        localStorage.setItem('bc_student_device_id', localId);
+                        studentRegisterForm.value = { level: 'UPP1', teacherId: teachers.value.length > 0 ? teachers.value[0].id : '', name: '', username: '', password: '' };
+                        showToast('Submitted locally');
+                    }
+                };
+
+                const resetStudentDevice = () => {
+                    currentStudentId.value = '';
+                    localStorage.removeItem('bc_student_device_id');
+                    studentRegisterForm.value = { level: 'UPP1', teacherId: teachers.value.length > 0 ? teachers.value[0].id : '', name: '', username: '', password: '' };
+                    studentLoginForm.value = { username: '', password: '' };
+                    studentLoginError.value = '';
+                    studentRegisterError.value = '';
+                    showToast('Logged out');
+                };
+
+                const saveGoal = async () => {
+                    if (!activeStudent.value || !goalForm.value.title || goalForm.value.target <= 0) return;
+                    const goalData = { title: goalForm.value.title, target: Number(goalForm.value.target) };
+
+                    try {
+                        const studentDoc = doc(db, 'artifacts', appId, 'public', 'data', 'students', activeStudent.value.id);
+                        await updateDoc(studentDoc, { goal: goalData });
+                    } catch (e) {
+                        activeStudent.value.goal = goalData;
+                    }
+
+                    playSound('fanfare');
+                    showToast('Savings Goal Set!');
+                };
+
+                const redeemReward = async (item) => {
+                    if (!activeStudent.value || activeStudent.value.balance < item.price) return;
+
+                    await quickAdjustBalance(activeStudent.value, -item.price, `Redeemed: ${item.title}`);
+
+                    const redData = {
+                        studentId: activeStudent.value.id,
+                        studentName: activeStudent.value.name,
+                        teacherId: activeStudent.value.teacherId || null,
+                        level: activeStudent.value.level,
+                        rewardId: item.id,
+                        rewardTitle: item.title,
+                        price: item.price,
+                        status: 'pending',
+                        timestamp: Date.now()
+                    };
+
+                    try {
+                        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'redemptions'), redData);
+                    } catch (e) {
+                        redemptions.value.unshift({ id: 'red_' + Date.now(), ...redData });
+                    }
+
+                    playSound('fanfare');
+                    showToast(`Redeemed ${item.title}! 🎉`);
+                };
+
+                const fulfillRedemption = async (red) => {
+                    try {
+                        const redDoc = doc(db, 'artifacts', appId, 'public', 'data', 'redemptions', red.id);
+                        await updateDoc(redDoc, { status: 'fulfilled' });
+                    } catch (e) {
+                        red.status = 'fulfilled';
+                    }
+
+                    playSound('deposit');
+                    showToast('Reward marked as delivered in class!');
+                };
+
+                const approveStudent = async (student) => {
+                    if (!currentTeacher.value) return;
+
+                    const updates = { 
+                        status: 'approved',
+                        teacherId: currentTeacher.value.id,
+                        teacherName: currentTeacher.value.displayName
+                    };
+
+                    try {
+                        const studentDoc = doc(db, 'artifacts', appId, 'public', 'data', 'students', student.id);
+                        await updateDoc(studentDoc, updates);
+                        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'transactions'), {
+                            studentId: student.id,
+                            studentName: student.name,
+                            level: student.level,
+                            teacherId: updates.teacherId,
+                            teacherName: updates.teacherName,
+                            type: 'credit',
+                            amount: Number(student.balance) || 0,
+                            reason: `Approved by ${updates.teacherName} 🎉`,
+                            balanceAfter: Number(student.balance) || 0,
+                            timestamp: Date.now()
+                        });
+                    } catch (e) {
+                        student.status = 'approved';
+                        student.teacherId = updates.teacherId;
+                        student.teacherName = updates.teacherName;
+                    }
+
+                    playSound('fanfare');
+                    showToast(`Approved ${student.name}!`, 'fa-user-check');
+                };
+
+                const rejectStudent = async (studentId) => {
+                    try {
+                        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'students', studentId));
+                    } catch(e) {
+                        students.value = students.value.filter(s => s.id !== studentId);
+                    }
+                    showToast('Registration rejected');
+                };
+
+                const quickAdjustBalance = async (student, amount, reason, suppressToast = false) => {
+                    const numAmount = Number(amount) || 0;
+                    const isCredit = numAmount > 0;
+                    const currentBal = Number(student.balance) || 0;
+                    const newBal = Math.max(0, currentBal + numAmount);
+                    const diff = newBal - currentBal;
+
+                    if (diff === 0 && numAmount < 0) return;
+
+                    student.balance = newBal;
+
+                    const txItem = {
+                        studentId: student.id,
+                        studentName: student.name,
+                        level: student.level,
+                        teacherId: student.teacherId || (currentTeacher.value ? currentTeacher.value.id : null),
+                        teacherName: student.teacherName || (currentTeacher.value ? currentTeacher.value.displayName : 'Teacher'),
+                        type: isCredit ? 'credit' : 'debit',
+                        amount: Math.abs(diff),
+                        reason: reason,
+                        balanceAfter: newBal,
+                        timestamp: Date.now()
+                    };
+
+                    try {
+                        if (!student.id.startsWith('st_')) {
+                            const studentDoc = doc(db, 'artifacts', appId, 'public', 'data', 'students', student.id);
+                            await updateDoc(studentDoc, { balance: newBal });
+                            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'transactions'), txItem);
+                        } else {
+                            transactions.value.unshift({ id: 'tx_' + Date.now() + Math.random(), ...txItem });
+                        }
+                    } catch (e) {
+                        transactions.value.unshift({ id: 'tx_' + Date.now() + Math.random(), ...txItem });
+                    }
+
+                    if (!suppressToast) {
+                        playSound(isCredit ? 'deposit' : 'debit');
+                        showToast(`${isCredit ? '+' : ''}${diff} ${settings.value.currencyName} to ${student.name}`);
+                    }
+                };
+
+                const openCustomTransactionModal = (student) => {
+                    activeTxStudent.value = student;
+                    txType.value = 'credit';
+                    txAmount.value = 5;
+                    txReason.value = '';
+                    showCustomTxModal.value = true;
+                };
+
+                const executeCustomTransaction = () => {
+                    if (!activeTxStudent.value || !txAmount.value || txAmount.value <= 0) return;
+                    const mult = txType.value === 'credit' ? 1 : -1;
+                    const reasonText = txReason.value.trim() || (txType.value === 'credit' ? 'Teacher Bonus' : 'Adjustment');
+
+                    quickAdjustBalance(activeTxStudent.value, Number(txAmount.value) * mult, reasonText);
+                    showCustomTxModal.value = false;
+                };
+
+                const openBatchRewardModal = () => {
+                    batchAmount.value = 5;
+                    batchReason.value = 'Whole Class Reward ⭐';
+                    showBatchModal.value = true;
+                };
+
+                const executeBatchReward = () => {
+                    const amount = Number(batchAmount.value) || 0;
+                    if (amount <= 0) {
+                        showToast('Please enter a valid amount to reward', 'fa-triangle-exclamation');
+                        return;
+                    }
+
+                    const classStudents = getApprovedStudentsInLevel(teacherLevel.value);
+                    if (!classStudents || classStudents.length === 0) {
+                        showToast(`No approved active students in ${teacherLevel.value}!`, 'fa-triangle-exclamation');
+                        showBatchModal.value = false;
+                        return;
+                    }
+
+                    classStudents.forEach(st => {
+                        quickAdjustBalance(st, amount, batchReason.value, true);
+                    });
+
+                    playSound('fanfare');
+                    showBatchModal.value = false;
+                    showToast(`Rewarded all ${classStudents.length} active students in ${teacherLevel.value}!`, 'fa-wand-magic-sparkles');
+                };
+
+                const openAddStudentModal = () => {
+                    isEditingStudent.value = false;
+                    studentForm.value = { id: '', name: '', username: '', password: '', level: teacherLevel.value, balance: 0 };
+                    showStudentModal.value = true;
+                };
+
+                const openEditStudentModal = (student) => {
+                    isEditingStudent.value = true;
+                    studentForm.value = { 
+                        id: student.id, 
+                        name: student.name, 
+                        username: student.username || '', 
+                        password: student.password || '', 
+                        level: student.level, 
+                        balance: Number(student.balance) || 0 
+                    };
+                    showStudentModal.value = true;
+                };
+
+                const saveStudent = async () => {
+                    if (!studentForm.value.name.trim() || !currentTeacher.value) return;
+
+                    const numBal = Number(studentForm.value.balance) || 0;
+                    const teacherId = currentTeacher.value.id;
+                    const teacherName = currentTeacher.value.displayName;
+                    const uname = studentForm.value.username ? studentForm.value.username.trim().toLowerCase() : '';
+                    const pwd = studentForm.value.password ? studentForm.value.password.trim() : '';
+
+                    if (isEditingStudent.value) {
+                        try {
+                            const studentDoc = doc(db, 'artifacts', appId, 'public', 'data', 'students', studentForm.value.id);
+                            await updateDoc(studentDoc, {
+                                name: studentForm.value.name,
+                                username: uname,
+                                password: pwd,
+                                level: studentForm.value.level,
+                                balance: numBal,
+                                teacherId: teacherId,
+                                teacherName: teacherName
+                            });
+                        } catch(e) {
+                            const st = students.value.find(s => s.id === studentForm.value.id);
+                            if (st) {
+                                st.name = studentForm.value.name;
+                                st.username = uname;
+                                st.password = pwd;
+                                st.level = studentForm.value.level;
+                                st.balance = numBal;
+                                st.teacherId = teacherId;
+                                st.teacherName = teacherName;
+                            }
+                        }
+                    } else {
+                        const newSt = {
+                            name: studentForm.value.name,
+                            username: uname,
+                            password: pwd,
+                            level: studentForm.value.level,
+                            balance: numBal,
+                            status: 'approved',
+                            teacherId: teacherId,
+                            teacherName: teacherName,
+                            goal: null,
+                            createdAt: Date.now()
+                        };
+
+                        try {
+                            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'students'), newSt);
+                        } catch(e) {
+                            students.value.push({ id: 'st_' + Date.now(), ...newSt });
+                        }
+                    }
+
+                    showStudentModal.value = false;
+                    showToast('Student record saved');
+                };
+
+                const deleteStudent = async (id) => {
+                    try {
+                        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'students', id));
+                    } catch(e) {
+                        students.value = students.value.filter(s => s.id !== id);
+                    }
+                    showStudentModal.value = false;
+                    showToast('Student deleted');
+                };
+
+                const openShareModal = () => {
+                    showShareModal.value = true;
+                    nextTick(() => {
+                        const qrContainer = document.getElementById('qrcode');
+                        if (qrContainer) {
+                            qrContainer.innerHTML = '';
+                            new QRCode(qrContainer, {
+                                text: window.location.href,
+                                width: 160,
+                                height: 160,
+                                colorDark: "#00205b",
+                                colorLight: "#ffffff"
+                            });
+                        }
+                    });
+                };
+
+                const copyAppUrl = () => {
+                    const tempInput = document.createElement('input');
+                    tempInput.value = window.location.href;
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+                    showToast('App Link Copied to Clipboard!');
+                };
+
+                const formatDate = (ts) => {
+                    if (!ts) return '';
+                    return new Date(ts).toLocaleString('en-GB', {
+                        day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+                    });
+                };
+
+                onMounted(() => {
+                    initFirebase();
+                });
+
+// --- TEACHER PROFILE LOGIC ---
+                const showTeacherProfileModal = ref(false);
+                const teacherProfileForm = ref({ displayName: '', pin: '', levels: [] });
+
+                const openTeacherProfileModal = () => {
+                    if (!currentTeacher.value) return;
+                    teacherProfileForm.value = {
+                        displayName: currentTeacher.value.displayName || '',
+                        pin: currentTeacher.value.pin || '',
+                        levels: Array.isArray(currentTeacher.value.levels) ? [...currentTeacher.value.levels] : []
+                    };
+                    showTeacherProfileModal.value = true;
+                };
+
+                const saveTeacherProfile = async () => {
+                    if (!currentTeacher.value?.id || !teacherProfileForm.value.displayName.trim()) {
+                        showToast('Display name is required', 'fa-triangle-exclamation');
+                        return;
+                    }
+
+                    const updatedProfile = {
+                        displayName: teacherProfileForm.value.displayName.trim(),
+                        pin: teacherProfileForm.value.pin.trim(),
+                        levels: teacherProfileForm.value.levels,
+                        updatedAt: Date.now()
+                    };
+
+                    try {
+                        const teacherDoc = doc(db, 'artifacts', appId, 'public', 'data', 'teachers', currentTeacher.value.id);
+                        await updateDoc(teacherDoc, updatedProfile);
+                        currentTeacher.value = { ...currentTeacher.value, ...updatedProfile };
+                        localStorage.setItem('bc_wallet_teacher', JSON.stringify(currentTeacher.value));
+                        showToast('Profile updated!', 'fa-circle-check');
+                        showTeacherProfileModal.value = false;
+                    } catch (e) {
+                        currentTeacher.value = { ...currentTeacher.value, ...updatedProfile };
+                        localStorage.setItem('bc_wallet_teacher', JSON.stringify(currentTeacher.value));
+                        showTeacherProfileModal.value = false;
+                        showToast('Profile updated locally', 'fa-circle-check');
+                    }
+                };
+
+                return {
+                    levels, settings, currentRole, studentTab, teacherTab, students, transactions, currentStudentId,
+                    studentAuthMode, studentLoginForm, studentLoginError, studentRegisterError, loginStudentWithCredentials,
+                    teachers, currentTeacher, teacherAuthTab, teacherLoginForm, teacherRegisterForm,
+                    teacherLevel, studentRegisterForm, rewards, redemptions, myRedemptions, teacherRedemptions, pendingRedemptionsCount, goalForm,
+                    showShareModal, showPinModal, pinError, showCustomTxModal, activeTxStudent, txType, txAmount, txReason,
+                    showBatchModal, batchAmount, batchReason, showStudentModal, isEditingStudent, studentForm, toast,
+                    activeStudent, activeStudentTransactions, pendingStudents, teacherFilteredApprovedStudents, teacherTransactions,
+                    handleModeToggle, verifyTeacherCredentials, registerTeacher, logoutTeacher, getBadgeTitle,
+                    getApprovedStudentsInLevel, registerStudent, resetStudentDevice, saveGoal, redeemReward, fulfillRedemption,
+                    approveStudent, rejectStudent, quickAdjustBalance, openCustomTransactionModal, executeCustomTransaction,
+                    openBatchRewardModal, executeBatchReward, openAddStudentModal, openEditStudentModal, saveStudent, deleteStudent,
+                    formatDate, openShareModal, copyAppUrl, showTeacherProfileModal, teacherProfileForm, openTeacherProfileModal, saveTeacherProfile
+                };
+            }
+        }).mount('#app');
+    </script>
+
+<!-- TEACHER PROFILE EDIT MODAL -->
+    <div v-if="showTeacherProfileModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-5">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-user-gear text-indigo-600"></i> Edit Teacher Profile
+                </h3>
+                <button @click="showTeacherProfileModal = false" class="text-slate-400 hover:text-slate-600 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Display Name</label>
+                    <input v-model="teacherProfileForm.displayName" type="text" class="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm" placeholder="e.g. Mr. Mohamed" />
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Teacher PIN</label>
+                    <input v-model="teacherProfileForm.pin" type="text" class="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-mono" placeholder="4-digit PIN" />
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Assigned Primary Levels</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label v-for="lvl in levels" :key="lvl.id" class="flex items-center gap-2 text-xs text-slate-700 bg-slate-50 p-2 rounded-lg border cursor-pointer hover:bg-slate-100">
+                            <input type="checkbox" :value="lvl.id" v-model="teacherProfileForm.levels" class="rounded text-indigo-600" />
+                            <span>{{ lvl.name }}</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <button @click="showTeacherProfileModal = false" class="flex-1 py-2 rounded-xl text-slate-600 bg-slate-100 hover:bg-slate-200 text-sm font-semibold">Cancel</button>
+                <button @click="saveTeacherProfile" class="flex-1 py-2 rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 text-sm font-semibold shadow-md">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
